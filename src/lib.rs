@@ -10,6 +10,10 @@ use wasm_bindgen_rayon::init_thread_pool;
 #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
 use wasm_bindgen_futures::JsFuture;
 
+mod js_challenge;
+mod js_response;
+mod js_token;
+
 /// JavaScript-compatible solution result containing proof-of-work data
 #[derive(serde::Serialize)]
 struct SolutionResult {
