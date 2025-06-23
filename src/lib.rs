@@ -13,6 +13,7 @@ use wasm_bindgen_futures::JsFuture;
 mod js_challenge;
 mod js_response;
 mod js_token;
+mod wasm_compat;
 
 /// JavaScript-compatible solution result containing proof-of-work data
 #[derive(serde::Serialize)]
@@ -58,11 +59,11 @@ fn create_ironshield_solution_result(response: ironshield_core::IronShieldChalle
 }
 
 /// Solves proof-of-work challenges using single-threaded computation.
-/// 
+///
 /// # Arguments
 /// * `challenge` - Base string to append nonce to for hashing.
 /// * `difficulty` - Number of leading zeros required in hash.
-/// 
+///
 /// # Returns
 /// JavaScript object with nonce and hash, or error message.
 #[wasm_bindgen]
@@ -83,10 +84,10 @@ pub fn solve_pow_challenge(challenge: &str, difficulty: usize) -> Result<JsValue
 }
 
 /// Initializes WebAssembly thread pool for parallel proof-of-work
-/// 
+///
 /// # Arguments
 /// * `num_threads` - Number of worker threads to spawn
-/// 
+///
 /// # Note
 /// Only available when compiled with a "parallel" feature flag
 #[wasm_bindgen]
@@ -98,15 +99,15 @@ pub async fn init_threads(num_threads: usize) -> Result<(), JsValue> {
 }
 
 /// Solves proof-of-work challenges using multithreaded parallel computation
-/// 
+///
 /// # Arguments
 /// * `challenge` - Base string to append nonce to for hashing
 /// * `difficulty` - Number of leading zeros required in hash
 /// * `num_threads` - Number of parallel workers to use
-/// 
+///
 /// # Returns
 /// JavaScript object with nonce and hash, or error message
-/// 
+///
 /// # Note
 /// Requires thread pool initialization via `init_threads()` first
 #[wasm_bindgen]
@@ -132,7 +133,7 @@ pub fn solve_pow_challenge_parallel(
 }
 
 /// Checks if parallel processing is available in the current build.
-/// 
+///
 /// # Returns
 /// `true` if compiled with a "parallel" feature, `false` otherwise.
 #[wasm_bindgen]
@@ -145,12 +146,12 @@ pub fn are_threads_supported() -> bool {
 }
 
 /// Verifies a proof-of-work solution without recomputing.
-/// 
+///
 /// # Arguments
 /// * `challenge` - Original challenge string.
 /// * `nonce_value` - Proposed solution nonce as string.
 /// * `difficulty` - Required number of leading zeros.
-/// 
+///
 /// # Returns
 /// `true` if a solution is valid, `false` otherwise.
 #[wasm_bindgen]
@@ -159,10 +160,10 @@ pub fn verify_pow_solution(challenge: &str, nonce_value: &str, difficulty: usize
 }
 
 /// Outputs debug message to browser console.
-/// 
+///
 /// # Arguments
 /// * `s` - Message string to log.
-/// 
+///
 /// # Note
 /// Useful for debugging WASM execution from JavaScript.
 #[wasm_bindgen]
@@ -171,26 +172,26 @@ pub fn console_log(s: &str) {
 }
 
 /// Solves IronShield proof-of-work challenges using single-threaded computation.
-/// 
+///
 /// # Arguments
 /// * `challenge_json` - JSON string containing the IronShieldChallenge
-/// 
+///
 /// # Returns
 /// JavaScript object with solution nonce and challenge signature, or error message.
 #[wasm_bindgen]
 pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsValue> {
-    // Enable better error messages in browser console
+    // Enable better error messages in browser console.
     console_error_panic_hook::set_once();
 
-    // Parse the challenge from JSON
+    // Parse the challenge from JSON.
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
         .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
 
-    // Find valid nonce using single-threaded algorithm
+    // Find valid nonce using a single-threaded algorithm.
     let response = ironshield_core::find_solution_single_threaded(&challenge)
         .map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge: {}", e)))?;
 
-    // Package result for JavaScript consumption
+    // Package result for JavaScript consumption.
     let solution_result = create_ironshield_solution_result(response);
 
     // Convert Rust struct to JavaScript object
@@ -198,23 +199,23 @@ pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsVal
         .map_err(|err| JsValue::from_str(&format!("Error serializing IronShield result: {:?}", err)))
 }
 
-/// Solves IronShield proof-of-work challenges using optimized multi-threaded computation.
-/// 
+/// Solves IronShield proof-of-work challenges using optimized multithreaded computation.
+///
 /// This function provides the fastest possible PoW solving by distributing the work
 /// across all available CPU cores with optimal load balancing and early termination.
-/// 
+///
 /// # Arguments
 /// * `challenge_json` - JSON string containing the IronShieldChallenge
-/// 
+///
 /// # Returns
 /// JavaScript object with solution nonce and challenge signature, or error message.
-/// 
+///
 /// # Performance
-/// - **Multi-core scaling**: Near-linear performance improvement with CPU core count
-/// - **WASM optimization**: Fully compatible with SharedArrayBuffer and Web Workers
-/// - **Early termination**: Stops all threads immediately when solution is found
-/// - **Memory efficient**: Minimal overhead compared to single-threaded version
-/// 
+/// - **Multi-core scaling**: Near-linear performance improvement with CPU core count.
+/// - **WASM optimization**: Fully compatible with SharedArrayBuffer and Web Workers.
+/// - **Early termination**: Stops all threads immediately when a solution is found.
+/// - **Memory efficient**: Minimal overhead compared to a single-threaded version.
+///
 /// # Note
 /// Requires thread pool initialization via `init_threads()` first when using parallel features
 #[wasm_bindgen]
@@ -227,7 +228,7 @@ pub fn solve_ironshield_challenge_multi_threaded(challenge_json: &str) -> Result
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
         .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
 
-    // Find valid nonce using optimized multi-threaded algorithm
+    // Find valid nonce using an optimized multithreaded algorithm.
     let response = ironshield_core::find_solution_multi_threaded(&challenge)
         .map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge with multi-threading: {}", e)))?;
 
@@ -240,11 +241,11 @@ pub fn solve_ironshield_challenge_multi_threaded(challenge_json: &str) -> Result
 }
 
 /// Verifies an IronShield proof-of-work solution without recomputing.
-/// 
+///
 /// # Arguments
 /// * `challenge_json` - JSON string containing the original IronShieldChallenge.
 /// * `solution_nonce` - Proposed solution nonce as i64.
-/// 
+///
 /// # Returns
 /// `true` if the solution is valid, `false` otherwise.
 #[wasm_bindgen]
