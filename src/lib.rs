@@ -14,6 +14,7 @@ mod js_challenge;
 mod js_response;
 mod js_token;
 mod wasm_compat;
+mod js_request;
 
 /// JavaScript-compatible solution result containing proof-of-work data
 #[derive(serde::Serialize)]
