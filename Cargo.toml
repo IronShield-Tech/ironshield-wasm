@@ -2,10 +2,13 @@
 name = "ironshield-wasm"
 version = "0.1.0"
 edition = "2021"
-authors = [ "ebosspc <software2070@protonmail.com>" ]
-description = "WebAssembly bindings for the IronShield PoW system"
-repository = "" # TODO: Add GitHub repository URL
-license = "BUSL-1.1" # Becomes Apache-2.0 after 2028-07-24
+authors = [ "IronShield Developers <software@ironshield.cloud>" ]
+description = "WebAssembly bindings for IronShield"
+repository = "https://github.com/IronShield-Tech/IronShield"
+license = "SSPL-1.0"
+readme = "README.md"
+keywords = ["wasm", "proof-of-work", "webassembly", "ddos", "javascript"]
+categories = ["wasm", "cryptography", "web-programming"]
 
 [lib]
 crate-type = ["cdylib"]
