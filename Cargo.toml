@@ -14,16 +14,20 @@ path = "src/lib.rs"
 [dependencies]
 ironshield-core = { path = "../ironshield-core" }
 ironshield-types = { path = "../ironshield-types" }
+
+# Use workspace-shared serialization dependencies
+serde.workspace = true
+serde_json.workspace = true
+hex.workspace = true
+
+# Dependencies specific to ironshield-wasm
 wasm-bindgen = { version = "0.2.92", features = ["serde-serialize"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
 serde-wasm-bindgen = "0.6.0"
 console_error_panic_hook = "0.1.7"
 web-sys = { version = "0.3", features = ["console", "Window", "Navigator"] }
 js-sys = "0.3"
 getrandom = { version = "0.2", features = ["js"] }
 sha2 = "0.10"
-hex = "0.4"
 chrono = { version = "0.4", features = ["serde"] }
 wasm-bindgen-rayon = { version = "1.0", optional = true }
 wasm-bindgen-futures = { version = "0.4", optional = true }
