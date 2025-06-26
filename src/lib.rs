@@ -87,8 +87,8 @@ pub fn console_log(s: &str) {
 /// JavaScript object with solution nonce and challenge signature, or error message.
 #[wasm_bindgen]
 pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsValue> {
-    // Enable better error messages in browser console.
-    console_error_panic_hook::set_once();
+    // Skip panic hook installation to avoid "unreachable executed" in workers
+    // console_error_panic_hook::set_once();
 
     // Parse the challenge from JSON.
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
@@ -128,8 +128,8 @@ pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsVal
 #[wasm_bindgen]
 #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
 pub fn solve_ironshield_challenge_multi_threaded(challenge_json: &str) -> Result<JsValue, JsValue> {
-    // Enable better error messages in browser console
-    console_error_panic_hook::set_once();
+    // Skip panic hook installation to avoid "unreachable executed" in workers
+    // console_error_panic_hook::set_once();
 
     // Parse the challenge from JSON
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
