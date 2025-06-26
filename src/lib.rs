@@ -90,13 +90,19 @@ pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsVal
     // Skip panic hook installation to avoid "unreachable executed" in workers
     // console_error_panic_hook::set_once();
 
+    console_log("🔍 [WASM] solve_ironshield_challenge() called - using SINGLE-THREADED algorithm");
+
     // Parse the challenge from JSON.
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
         .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
 
+    console_log("🔍 [WASM] Calling ironshield_core::find_solution_single_threaded()");
+
     // Find valid nonce using a single-threaded algorithm.
     let response = ironshield_core::find_solution_single_threaded(&challenge)
         .map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge: {}", e)))?;
+
+    console_log("✅ [WASM] Single-threaded solution found");
 
     // Package result for JavaScript consumption.
     let solution_result = create_ironshield_solution_result(response);
@@ -131,13 +137,19 @@ pub fn solve_ironshield_challenge_multi_threaded(challenge_json: &str) -> Result
     // Skip panic hook installation to avoid "unreachable executed" in workers
     // console_error_panic_hook::set_once();
 
+    console_log("🚀 [WASM] solve_ironshield_challenge_multi_threaded() called - using MULTI-THREADED algorithm");
+
     // Parse the challenge from JSON
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
         .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
 
+    console_log("🚀 [WASM] Calling ironshield_core::find_solution_multi_threaded()");
+
     // Find valid nonce using an optimized multithreaded algorithm.
     let response = ironshield_core::find_solution_multi_threaded(&challenge)
         .map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge with multi-threading: {}", e)))?;
+
+    console_log("✅ [WASM] Multi-threaded solution found");
 
     // Package result for JavaScript consumption
     let solution_result = create_ironshield_solution_result(response);
