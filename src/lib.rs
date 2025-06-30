@@ -115,48 +115,62 @@ pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsVal
 /// Solves IronShield proof-of-work challenges using optimized multithreaded computation.
 ///
 /// This function provides the fastest possible PoW solving by distributing the work
-/// across all available CPU cores with optimal load balancing and early termination.
+/// across the specified number of threads with optimal load balancing and early termination.
 ///
 /// # Arguments
 /// * `challenge_json` - JSON string containing the IronShieldChallenge
+/// * `num_threads` - Number of threads to use (optional, defaults to available cores)
+/// * `start_offset` - Starting nonce offset for worker coordination (optional)
+/// * `stride` - Nonce increment stride for worker coordination (optional) 
 ///
 /// # Returns
 /// JavaScript object with solution nonce and challenge signature, or error message.
 ///
 /// # Performance
-/// - **Multi-core scaling**: Near-linear performance improvement with CPU core count.
-/// - **WASM optimization**: Fully compatible with SharedArrayBuffer and Web Workers.
+/// - **Multi-core scaling**: Near-linear performance improvement with thread count.
+/// - **Thread-stride algorithm**: Optimal load balancing without coordination overhead.
 /// - **Early termination**: Stops all threads immediately when a solution is found.
-/// - **Memory efficient**: Minimal overhead compared to a single-threaded version.
-///
-/// # Note
-/// Requires thread pool initialization via `init_threads()` first when using parallel features
+/// - **Memory efficient**: Minimal overhead compared to single-threaded version.
 #[wasm_bindgen]
 #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
-pub fn solve_ironshield_challenge_multi_threaded(challenge_json: &str) -> Result<JsValue, JsValue> {
+pub fn solve_ironshield_challenge_multi_threaded(
+    challenge_json: &str, 
+    num_threads: Option<u32>,
+    start_offset: Option<u32>,
+    stride: Option<u32>
+) -> Result<JsValue, JsValue> {
     // Skip panic hook installation to avoid "unreachable executed" in workers
     // console_error_panic_hook::set_once();
 
-    console_log("🚀 [WASM] solve_ironshield_challenge_multi_threaded() called - using MULTI-THREADED algorithm");
+    console_log("🚀 [WASM] solve_ironshield_challenge_multi_threaded() called - using WORKER COORDINATION algorithm");
 
-    // Parse the challenge from JSON
+    // Parse the challenge JSON
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
         .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
 
-    console_log("🚀 [WASM] Calling ironshield_core::find_solution_multi_threaded()");
+    let thread_count = num_threads.map(|n| n as usize);
+    let start = start_offset.map(|n| n as usize);
+    let step = stride.map(|n| n as usize);
+    
+    if let (Some(start_val), Some(stride_val)) = (start, step) {
+        console_log(&format!("🎯 [WASM] JavaScript worker coordination: start={}, stride={} (checks nonces {}, {}, {}, ...)", start_val, stride_val, start_val, start_val + stride_val, start_val + 2*stride_val));
+    } else {
+        console_log("🔄 [WASM] Single-threaded fallback mode (no worker coordination)");
+    }
 
-    // Find valid nonce using an optimized multithreaded algorithm.
-    let response = ironshield_core::find_solution_multi_threaded(&challenge)
-        .map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge with multi-threading: {}", e)))?;
+    // Find valid nonce using JavaScript worker coordinated algorithm.
+    let response = ironshield_core::find_solution_multi_threaded(&challenge, thread_count, start, step)
+        .map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge with worker coordination: {}", e)))?;
 
-    console_log("✅ [WASM] Multi-threaded solution found");
+    console_log("✅ [WASM] Worker coordination solution found");
 
-    // Package result for JavaScript consumption
-    let solution_result = create_ironshield_solution_result(response);
+    // Convert the response to a JavaScript object
+    let result = js_sys::Object::new();
+    js_sys::Reflect::set(&result, &"solution_str".into(), &response.solution.to_string().into())?;
+    js_sys::Reflect::set(&result, &"solution".into(), &JsValue::from(response.solution))?;
+    js_sys::Reflect::set(&result, &"challenge_signature_hex".into(), &hex::encode(response.challenge_signature).into())?;
 
-    // Convert Rust struct to JavaScript object
-    serde_wasm_bindgen::to_value(&solution_result)
-        .map_err(|err| JsValue::from_str(&format!("Error serializing multi-threaded IronShield result: {:?}", err)))
+    Ok(result.into())
 }
 
 /// Verifies an IronShield proof-of-work solution without recomputing.
