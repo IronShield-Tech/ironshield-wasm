@@ -130,7 +130,7 @@ pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsVal
 /// - **Multi-core scaling**: Near-linear performance improvement with thread count.
 /// - **Thread-stride algorithm**: Optimal load balancing without coordination overhead.
 /// - **Early termination**: Stops all threads immediately when a solution is found.
-/// - **Memory efficient**: Minimal overhead compared to single-threaded version.
+/// - **Memory efficient**: Minimal overhead compared to a single-threaded version.
 #[wasm_bindgen]
 #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
 pub fn solve_ironshield_challenge_multi_threaded(
@@ -140,7 +140,7 @@ pub fn solve_ironshield_challenge_multi_threaded(
     stride: Option<u32>
 ) -> Result<JsValue, JsValue> {
     // Skip panic hook installation to avoid "unreachable executed" in workers
-    // console_error_panic_hook::set_once();
+    // console_error_panic_hook::set_once()
 
     console_log("🚀 [WASM] solve_ironshield_challenge_multi_threaded() called - using WORKER COORDINATION algorithm");
 
@@ -153,7 +153,7 @@ pub fn solve_ironshield_challenge_multi_threaded(
     let step = stride.map(|n| n as usize);
     
     if let (Some(start_val), Some(stride_val)) = (start, step) {
-        console_log(&format!("🎯 [WASM] JavaScript worker coordination: start={}, stride={} (checks nonces {}, {}, {}, ...)", start_val, stride_val, start_val, start_val + stride_val, start_val + 2*stride_val));
+        console_log(&format!("🎯 [WASM] JavaScript worker coordination: start={}, stride={} (checks nonce's {}, {}, {}, ...)", start_val, stride_val, start_val, start_val + stride_val, start_val + 2*stride_val));
     } else {
         console_log("🔄 [WASM] Single-threaded fallback mode (no worker coordination)");
     }
