@@ -34,7 +34,7 @@ fn create_ironshield_solution_result(response: ironshield_core::IronShieldChalle
     IronShieldSolutionResult {
         solution_str: response.solution.to_string(),
         solution: response.solution,
-        challenge_signature_hex: hex::encode(response.challenge_signature),
+        challenge_signature_hex: hex::encode(response.solved_challenge.challenge_signature),
     }
 }
 
@@ -168,7 +168,7 @@ pub fn solve_ironshield_challenge_multi_threaded(
     let result = js_sys::Object::new();
     js_sys::Reflect::set(&result, &"solution_str".into(), &response.solution.to_string().into())?;
     js_sys::Reflect::set(&result, &"solution".into(), &JsValue::from(response.solution))?;
-    js_sys::Reflect::set(&result, &"challenge_signature_hex".into(), &hex::encode(response.challenge_signature).into())?;
+    js_sys::Reflect::set(&result, &"challenge_signature_hex".into(), &hex::encode(response.solved_challenge.challenge_signature).into())?;
 
     Ok(result.into())
 }
@@ -187,7 +187,10 @@ pub fn verify_ironshield_solution(challenge_json: &str, solution_nonce: i64) -> 
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
         .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON for verification: {}", e)))?;
 
-    // Verify the solution
-    let is_valid = ironshield_core::verify_ironshield_solution(&challenge, solution_nonce);
+    // Create a challenge response for verification
+    let response = ironshield_core::IronShieldChallengeResponse::new(challenge, solution_nonce);
+
+    // Verify the solution using the new API
+    let is_valid = ironshield_core::verify_ironshield_solution(&response);
     Ok(is_valid)
 }

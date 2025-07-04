@@ -1,7 +1,7 @@
 //! # JavaScript binding functionality for the IronShield Challenge Response (IronShieldChallengeResponse struct)
 
 use wasm_bindgen::prelude::*;
-use ironshield_types::IronShieldChallengeResponse;
+use ironshield_types::{IronShieldChallengeResponse, IronShieldChallenge};
 
 /// JavaScript-compatible wrapper for IronShieldChallengeResponse
 /// with JSON serialization.
@@ -21,28 +21,23 @@ impl JsIronShieldChallengeResponse {
     /// server, and therefore does not have a `from_json` constructor.
     ///
     /// # Arguments
-    /// * `challenge_signature_hex`:  Challenge signature as hex string.
-    /// * `solution`:                 Solution nonce.
+    /// * `challenge_json`:  Challenge as JSON string.
+    /// * `solution`:        Solution nonce.
     ///
     /// # Returns
-    /// * `Result<Self, JsValue>`:    New token or an error.
+    /// * `Result<Self, JsValue>`:    New response or an error.
     #[wasm_bindgen(constructor)]
     pub fn new(
-        challenge_signature_hex: &str,
-        solution:                i64,
+        challenge_json: &str,
+        solution: i64,
     ) -> Result<Self, JsValue> {
-        let signature_bytes = hex::decode(challenge_signature_hex)
-            .map_err(|e| JsValue::from_str(&format!("Invalid challenge signature hex: {}", e)))?;
+        // Parse the challenge from JSON
+        let challenge: IronShieldChallenge = serde_json::from_str(challenge_json)
+            .map_err(|e| JsValue::from_str(&format!("Failed to parse challenge JSON: {}", e)))?;
 
-        if signature_bytes.len() != 64 {
-            return Err(JsValue::from_str("Challenge signature must be exactly 64 bytes."));
-        }
-
-        let mut signature = [0u8; 64];
-        signature.copy_from_slice(&signature_bytes);
-
-        let response = IronShieldChallengeResponse::new(signature, solution);
-        Ok(Self { inner: response})
+        // Create the response with the full challenge
+        let response = IronShieldChallengeResponse::new(challenge, solution);
+        Ok(Self { inner: response })
     }
     
     /// Creates a new JavaScript binding for the `IronShieldChallengeResponse`
@@ -114,7 +109,7 @@ impl JsIronShieldChallengeResponse {
     /// Gets the challenge signature as hex string.
     #[wasm_bindgen(getter)]
     pub fn challenge_signature_hex(&self) -> String {
-        hex::encode(self.inner.challenge_signature)
+        hex::encode(self.inner.solved_challenge.challenge_signature)
     }
 
     /// Gets the solution nonce.
