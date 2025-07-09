@@ -1,9 +1,10 @@
 //! # JavaScript binding functionality for the IronShield Token (IronShieldToken struct)
 
 use wasm_bindgen::prelude::*;
+
 use ironshield_types::IronShieldToken;
 
-/// JavaScript-compatible wrapper for IronShieldToken
+/// JavaScript-compatible wrapper for `IronShieldToken`
 /// with JSON serialization.
 #[wasm_bindgen]
 pub struct JsIronShieldToken {
@@ -15,7 +16,7 @@ impl JsIronShieldToken {
     /// Creates a new JavaScript binding for the `IronShieldToken` 
     /// from a JSON string.
     ///
-    /// Constructor is `from_json` because `IronShieldToken`
+    /// Constructor is `from_json(...)` because `IronShieldToken`
     /// is intended (typically) to be received from a server as JSON,
     /// not created directly in JavaScript or created by the user.
     ///
@@ -80,25 +81,29 @@ impl JsIronShieldToken {
         Ok(Self { inner: token })
     }
 
-    /// Gets the challenge signature as hex string.
+    /// # Returns
+    /// * `String`: The challenge signature as hex string.
     #[wasm_bindgen(getter)]
     pub fn challenge_signature_hex(&self) -> String {
         hex::encode(self.inner.challenge_signature)
     }
 
-    /// Gets the validity period.
+    /// # Returns
+    /// * `i64`: The validity period.
     #[wasm_bindgen(getter)]
     pub fn valid_for(&self) -> i64 {
         self.inner.valid_for
     }
 
-    /// Gets the public key as hex string.
+    /// # Returns
+    /// * `String`: The public key as hex string.
     #[wasm_bindgen(getter)]
     pub fn public_key_hex(&self) -> String {
         hex::encode(self.inner.public_key)
     }
 
-    /// Gets the authentication signature as hex string.
+    /// # Returns
+    /// * `String`: The authentication signature as hex string.
     #[wasm_bindgen(getter)]
     pub fn authentication_signature_hex(&self) -> String {
         hex::encode(self.inner.auth_signature)
