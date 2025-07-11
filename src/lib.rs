@@ -1,4 +1,5 @@
 use ironshield_core;
+
 use wasm_bindgen::prelude::*;
 use hex;
 use serde_json;
@@ -41,7 +42,7 @@ fn create_ironshield_solution_result(response: ironshield_core::IronShieldChalle
 /// Initializes WebAssembly thread pool for parallel proof-of-work
 ///
 /// # Arguments
-/// * `num_threads` - Number of worker threads to spawn
+/// * `num_threads`: Number of worker threads to spawn
 ///
 /// # Note
 /// Only available when compiled with a "parallel" feature flag
@@ -56,7 +57,7 @@ pub async fn init_threads(num_threads: usize) -> Result<(), JsValue> {
 /// Checks if parallel processing is available in the current build.
 ///
 /// # Returns
-/// `true` if compiled with a "parallel" feature, `false` otherwise.
+/// `bool`: `true` if compiled with a "parallel" feature, `false` otherwise.
 #[wasm_bindgen]
 pub fn are_threads_supported() -> bool {
     #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
@@ -69,7 +70,7 @@ pub fn are_threads_supported() -> bool {
 /// Outputs debug message to browser console.
 ///
 /// # Arguments
-/// * `s` - Message string to log.
+/// * `s`: Message string to log.
 ///
 /// # Note
 /// Useful for debugging WASM execution from JavaScript.
@@ -118,19 +119,19 @@ pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsVal
 /// across the specified number of threads with optimal load balancing and early termination.
 ///
 /// # Arguments
-/// * `challenge_json` - JSON string containing the IronShieldChallenge
-/// * `num_threads` - Number of threads to use (optional, defaults to available cores)
-/// * `start_offset` - Starting nonce offset for worker coordination (optional)
-/// * `stride` - Nonce increment stride for worker coordination (optional) 
+/// * `challenge_json`: JSON string containing the IronShieldChallenge
+/// * `num_threads`:    Number of threads to use (optional, defaults to available cores)
+/// * `start_offset`:   Starting nonce offset for worker coordination (optional)
+/// * `stride`:         Nonce increment stride for worker coordination (optional) 
 ///
 /// # Returns
 /// JavaScript object with solution nonce and challenge signature, or error message.
 ///
 /// # Performance
-/// - **Multi-core scaling**: Near-linear performance improvement with thread count.
+/// - **Multi-core scaling**:      Near-linear performance improvement with thread count.
 /// - **Thread-stride algorithm**: Optimal load balancing without coordination overhead.
-/// - **Early termination**: Stops all threads immediately when a solution is found.
-/// - **Memory efficient**: Minimal overhead compared to a single-threaded version.
+/// - **Early termination**:       Stops all threads immediately when a solution is found.
+/// - **Memory efficient**:        Minimal overhead compared to a single-threaded version.
 #[wasm_bindgen]
 #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
 pub fn solve_ironshield_challenge_multi_threaded(
@@ -189,11 +190,11 @@ pub fn solve_ironshield_challenge_multi_threaded(
 /// Verifies an IronShield proof-of-work solution without recomputing.
 ///
 /// # Arguments
-/// * `challenge_json` - JSON string containing the original IronShieldChallenge.
-/// * `solution_nonce` - Proposed solution nonce as i64.
+/// * `challenge_json`: JSON string containing the original IronShieldChallenge.
+/// * `solution_nonce`: Proposed solution nonce as i64.
 ///
 /// # Returns
-/// `true` if the solution is valid, `false` otherwise.
+/// `Result<bool, JsValue>`: `true` if the solution is valid, `false` otherwise.
 #[wasm_bindgen]
 pub fn verify_ironshield_solution(challenge_json: &str, solution_nonce: i64) -> Result<bool, JsValue> {
     // Parse the challenge from JSON

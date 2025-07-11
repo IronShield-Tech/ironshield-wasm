@@ -1,9 +1,13 @@
 //! # JavaScript binding functionality for the IronShield Challenge Response (IronShieldChallengeResponse struct)
 
 use wasm_bindgen::prelude::*;
-use ironshield_types::{IronShieldChallengeResponse, IronShieldChallenge};
 
-/// JavaScript-compatible wrapper for IronShieldChallengeResponse
+use ironshield_types::{
+    IronShieldChallengeResponse, 
+    IronShieldChallenge
+};
+
+/// JavaScript-compatible wrapper for `IronShieldChallengeResponse`
 /// with JSON serialization.
 #[wasm_bindgen]
 pub struct JsIronShieldChallengeResponse {
@@ -15,7 +19,7 @@ impl JsIronShieldChallengeResponse {
     /// This creates a JavaScript constructor that can be called with 
     /// `new JsIronShieldChallengeResponse()`.
     ///
-    /// The `IronShieldChallengeResponse` is incorporating `new` as the 
+    /// The `IronShieldChallengeResponse` is incorporating `new(...)` as the 
     /// constructor because it is intended to be created from individual
     /// components on the client side, rather than being received from a 
     /// server, and therefore does not have a `from_json` constructor.
@@ -106,13 +110,15 @@ impl JsIronShieldChallengeResponse {
         Ok(Self { inner: response })
     }
 
-    /// Gets the challenge signature as hex string.
+    /// # Returns
+    /// * `String`: The challenge signature as hex string.
     #[wasm_bindgen(getter)]
     pub fn challenge_signature_hex(&self) -> String {
         hex::encode(self.inner.solved_challenge.challenge_signature)
     }
 
-    /// Gets the solution nonce.
+    /// # Returns
+    /// `i64`: The solution nonce.
     #[wasm_bindgen(getter)]
     pub fn solution(&self) -> i64 {
         self.inner.solution

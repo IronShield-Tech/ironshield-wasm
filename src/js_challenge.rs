@@ -2,9 +2,10 @@
 
 use serde_json;
 use wasm_bindgen::prelude::*;
+
 use ironshield_types::IronShieldChallenge;
 
-/// JavaScript-compatible wrapper for IronShieldChallenge
+/// JavaScript-compatible wrapper for `IronShieldChallenge`
 /// with JSON serialization.
 #[wasm_bindgen]
 pub struct JsIronShieldChallenge {
@@ -16,7 +17,7 @@ impl JsIronShieldChallenge {
     /// Creates a new JavaScript binding for the `IronShieldChallenge`
     /// from a JSON string.
     ///
-    /// Constructor is `from_json` because `IronShieldChallenge` is
+    /// Constructor is `from_json(...)` because `IronShieldChallenge` is
     /// intended (typically) to be received from a server as JSON,
     /// not created directly in JavaScript or created by the user.
     ///
@@ -82,43 +83,50 @@ impl JsIronShieldChallenge {
         Ok(Self { inner: challenge })
     }
 
-    /// Gets the random nonce as a string.
+    /// # Returns
+    /// * `String`: The random nonce as a string.
     #[wasm_bindgen(getter)]
     pub fn random_nonce(&self) -> String {
         self.inner.random_nonce.clone()
     }
 
-    /// Gets the difficulty of the challenge as an i64.
+    /// # Returns
+    /// * `i64`: The creation time as an i64 Unix timestamp.
     #[wasm_bindgen(getter)]
     pub fn created_time(&self) -> i64 {
         self.inner.created_time
     }
 
-    /// Gets the expiration time of the challenge as an i64.
+    /// # Returns
+    /// * `i64`: The expiration time as an i64 Unix timestamp.
     #[wasm_bindgen(getter)]
     pub fn expiration_time(&self) -> i64 {
         self.inner.expiration_time
     }
 
-    /// Gets the website ID.
+    /// # Returns
+    /// * `String` The website ID string.
     #[wasm_bindgen(getter)]
     pub fn website_id(&self) -> String {
         self.inner.website_id.clone()
     }
 
-    /// Gets the challenge parameter as hex string.
+    /// # Returns
+    /// * `String`: The challenge parameter encoded as a hexadecimal string.
     #[wasm_bindgen(getter)]
     pub fn challenge_param_hex(&self) -> String {
         hex::encode(self.inner.challenge_param)
     }
 
-    /// Gets the public key as hex string.
+    /// # Returns
+    /// * `String`: The public key encoded as a hexadecimal string.
     #[wasm_bindgen(getter)]
     pub fn public_key_hex(&self) -> String {
         hex::encode(self.inner.public_key)
     }
 
-    /// Gets the challenge signature as hex string.
+    /// # Returns
+    /// * `String`: The challenge signature encoded as a hexadecimal string.
     #[wasm_bindgen(getter)]
     pub fn challenge_signature_hex(&self) -> String {
         hex::encode(self.inner.challenge_signature)

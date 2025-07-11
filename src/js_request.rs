@@ -1,9 +1,10 @@
 //! # JavaScript binding functionality for the IronShieldRequest (IronShieldRequest struct)
 
 use wasm_bindgen::prelude::*;
+
 use ironshield_types::IronShieldRequest;
 
-/// JavaScript-compatible wrapper for IronShieldRequest
+/// JavaScript-compatible wrapper for `IronShieldRequest`
 /// with JSON serialization.
 #[wasm_bindgen]
 pub struct JsIronShieldRequest {
@@ -15,7 +16,7 @@ impl JsIronShieldRequest {
     /// Creates a new JavaScript that can be called with 
     /// `new JsIronShieldRequest()`.
     /// 
-    /// The `IronShieldRequest` is incorporating `new` as the
+    /// The `IronShieldRequest` is incorporating `new(...)` as the
     /// constructor because it is intended to be created
     /// from individual components on the client side,
     /// rather than being received from a server,
@@ -108,13 +109,15 @@ impl JsIronShieldRequest {
         Ok(Self { inner: request })
     }
     
-    /// Gets the challenge endpoint of the request.
+    /// # Returns
+    /// * `String`: The challenge endpoint of the request.
     #[wasm_bindgen(getter)]
     pub fn endpoint(&self) -> String {
         self.inner.endpoint.clone()
     }
     
-    /// Gets the timestamp of the request.
+    /// # Returns
+    /// * `i64`: The timestamp of the request.
     #[wasm_bindgen(getter)]
     pub fn timestamp(&self) -> i64 {
         self.inner.timestamp
