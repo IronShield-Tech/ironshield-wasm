@@ -137,7 +137,8 @@ pub fn solve_ironshield_challenge_multi_threaded(
     challenge_json: &str, 
     num_threads: Option<u32>,
     start_offset: Option<u32>,
-    stride: Option<u32>
+    stride: Option<u32>,
+    progress_callback: &js_sys::Function,
 ) -> Result<JsValue, JsValue> {
     // Skip panic hook installation to avoid "unreachable executed" in workers
     // console_error_panic_hook::set_once()
@@ -158,9 +159,21 @@ pub fn solve_ironshield_challenge_multi_threaded(
         console_log("🔄 [WASM] Single-threaded fallback mode (no worker coordination)");
     }
 
+    // Create a Rust closure that wraps the JavaScript callback function
+    let callback = progress_callback.clone();
+    let closure = move |progress: u64| {
+        // Call the JavaScript function, passing the progress value
+        let _ = callback.call1(&JsValue::NULL, &JsValue::from(progress));
+    };
+
     // Find valid nonce using JavaScript worker coordinated algorithm.
-    let response = ironshield_core::find_solution_multi_threaded(&challenge, thread_count, start, step)
-        .map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge with worker coordination: {}", e)))?;
+    let response = ironshield_core::find_solution_multi_threaded(
+        &challenge, 
+        thread_count, 
+        start, 
+        step,
+        Some(&closure)
+    ).map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge with worker coordination: {}", e)))?;
 
     console_log("✅ [WASM] Worker coordination solution found");
 
