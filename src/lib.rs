@@ -149,7 +149,6 @@ pub fn solve_ironshield_challenge_multi_threaded(
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
         .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
 
-    let thread_count = num_threads.map(|n| n as usize);
     let start = start_offset.map(|n| n as usize);
     let step = stride.map(|n| n as usize);
     
@@ -168,8 +167,7 @@ pub fn solve_ironshield_challenge_multi_threaded(
 
     // Find valid nonce using JavaScript worker coordinated algorithm.
     let response = ironshield_core::find_solution_multi_threaded(
-        &challenge, 
-        thread_count, 
+        &challenge,
         start, 
         step,
         Some(&closure)
