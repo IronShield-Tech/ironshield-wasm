@@ -21,10 +21,10 @@ impl JsIronShieldToken {
     /// not created directly in JavaScript or created by the user.
     ///
     /// # Arguments
-    /// * `json_str` - JSON representation of the token
+    /// * `json_str`: JSON representation of the token
     ///
     /// # Returns
-    /// * `Result<Self, JsValue>` - Parsed token or error
+    /// * `Result<Self, JsValue>`: Parsed token or error
     #[wasm_bindgen]
     pub fn from_json(json_str: &str) -> Result<Self, JsValue> {
         let token: IronShieldToken = serde_json::from_str(json_str)
