@@ -134,8 +134,7 @@ pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsVal
 #[wasm_bindgen]
 #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
 pub fn solve_ironshield_challenge_multi_threaded(
-    challenge_json: &str, 
-    num_threads: Option<u32>,
+    challenge_json: &str,
     start_offset: Option<u32>,
     stride: Option<u32>,
     progress_callback: &js_sys::Function,
