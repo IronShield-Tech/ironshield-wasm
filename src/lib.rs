@@ -1,4 +1,8 @@
-use ironshield_core;
+mod js_challenge;
+mod js_response;
+mod js_token;
+mod wasm_compat;
+mod js_request;
 
 use wasm_bindgen::prelude::*;
 use hex;
@@ -11,22 +15,19 @@ use wasm_bindgen_rayon::init_thread_pool;
 #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
 use wasm_bindgen_futures::JsFuture;
 
-mod js_challenge;
-mod js_response;
-mod js_token;
-mod wasm_compat;
-mod js_request;
-
-// Legacy SolutionResult struct removed - use IronShieldSolutionResult instead
+use ironshield_core;
 
 /// JavaScript-compatible solution result for IronShield challenges
+///
+/// * `solution_str`:            String representation of the solution nonce
+///                              to avoid JavaScript BigInt precision issues.
+/// * `solution`:                Original numeric value for compatibility.
+/// * `challenge_signature_hex`: Challenge signature preserved from the 
+///                              original challenge.
 #[derive(serde::Serialize)]
 struct IronShieldSolutionResult {
-    /// String representation of the solution nonce to avoid JavaScript BigInt precision issues.
-    solution_str: String,
-    /// Original numeric value for compatibility.
-    solution: i64,
-    /// Challenge signature preserved from the original challenge.
+    solution_str:            String,
+    solution:                i64,
     challenge_signature_hex: String,
 }
 
@@ -82,15 +83,13 @@ pub fn console_log(s: &str) {
 /// Solves IronShield proof-of-work challenges using single-threaded computation.
 ///
 /// # Arguments
-/// * `challenge_json` - JSON string containing the IronShieldChallenge
+/// * `challenge_json`: JSON string containing the IronShieldChallenge
 ///
 /// # Returns
-/// JavaScript object with solution nonce and challenge signature, or error message.
+/// * `Result<JsValue, JsValue>`: JavaScript object with solution nonce 
+///                               and challenge signature, or error message.
 #[wasm_bindgen]
 pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsValue> {
-    // Skip panic hook installation to avoid "unreachable executed" in workers
-    // console_error_panic_hook::set_once();
-
     console_log("🔍 [WASM] solve_ironshield_challenge() called - using SINGLE-THREADED algorithm");
 
     // Parse the challenge from JSON.
