@@ -25,11 +25,11 @@ impl JsIronShieldChallengeResponse {
     /// server, and therefore does not have a `from_json` constructor.
     ///
     /// # Arguments
-    /// * `challenge_json`:  Challenge as JSON string.
-    /// * `solution`:        Solution nonce.
+    /// * `challenge_json`: Challenge as JSON string.
+    /// * `solution`:       Solution nonce.
     ///
     /// # Returns
-    /// * `Result<Self, JsValue>`:    New response or an error.
+    /// * `Result<Self, JsValue>`: New response or an error.
     #[wasm_bindgen(constructor)]
     pub fn new(
         challenge_json: &str,
