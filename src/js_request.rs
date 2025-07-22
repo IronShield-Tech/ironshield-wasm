@@ -36,7 +36,7 @@ impl JsIronShieldRequest {
         if endpoint.is_empty() {
             return Err(JsValue::from_str("Endpoint cannot be empty"));
         }
-        if timestamp <= 0 || timestamp > i64::MAX {
+        if timestamp <= 0 {
             return Err(JsValue::from_str("Timestamp must be within the bounds of a valid Unix timestamp in milliseconds"));
         }
         
