@@ -15,7 +15,6 @@ crate-type = ["cdylib"]
 path = "src/lib.rs"
 
 [dependencies]
-# Shared dependencies accross workspaces
 ironshield-core = { version = "0.3", features = ["parallel"] }
 ironshield-types = { version = "0.2", features = ["wasm-logging"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -25,8 +24,6 @@ chrono = { version = "0.4", features = ["serde"] }
 sha2 = "0.10"
 wasm-bindgen = { version = "0.2.100", features = ["serde-serialize"] }
 serde-wasm-bindgen = "0.6.5"
-
-# Workspace specific dependencies
 console_error_panic_hook = "0.1.7"
 web-sys = { version = "0.3", features = ["console", "Window", "Navigator"] }
 js-sys = "0.3"
