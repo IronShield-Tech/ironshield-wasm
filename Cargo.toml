@@ -1,6 +1,6 @@
 [package]
 name = "ironshield-wasm"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = [ "IronShield Developers <software@ironshield.cloud>" ]
 description = "WebAssembly bindings for IronShield"
