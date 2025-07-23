@@ -5,8 +5,8 @@ edition = "2021"
 authors = [ "IronShield Developers <software@ironshield.cloud>" ]
 description = "WebAssembly bindings for IronShield"
 repository = "https://github.com/IronShield-Tech/ironshield-wasm"
-license = "SSPL-1.0"
-readme = "README.md"
+license = "Apache-2.0"
+readme = "README-crates.md"
 keywords = ["wasm", "proof-of-work", "webassembly", "ddos", "javascript"]
 categories = ["wasm", "cryptography", "web-programming"]
 
