@@ -51,8 +51,8 @@ fn create_ironshield_solution_result(response: ironshield_core::IronShieldChalle
 #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
 pub async fn init_threads(num_threads: usize) -> Result<(), JsValue> {
     // Create a shared memory thread pool for parallel processing
-    let promise = init_thread_pool(num_threads);
-    JsFuture::from(promise).await.map(|_| ()).map_err(|e| e)
+    let promise: js_sys::Promise = init_thread_pool(num_threads);
+    JsFuture::from(promise).await.map(|_| ()).map_err(|e: JsValue| e)
 }
 
 /// Checks if parallel processing is available in the current build.
@@ -94,22 +94,22 @@ pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsVal
 
     // Parse the challenge from JSON.
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
-        .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
+        .map_err(|e: serde_json::Error| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
 
     console_log("🔍 [WASM] Calling ironshield_core::find_solution_single_threaded()");
 
     // Find valid nonce using a single-threaded algorithm.
-    let response = ironshield_core::find_solution_single_threaded(&challenge)
-        .map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge: {}", e)))?;
+    let response: ironshield_core::IronShieldChallengeResponse = ironshield_core::find_solution_single_threaded(&challenge, None)
+        .map_err(|e: String| JsValue::from_str(&format!("Error solving IronShield challenge: {}", e)))?;
 
     console_log("✅ [WASM] Single-threaded solution found");
 
     // Package result for JavaScript consumption.
-    let solution_result = create_ironshield_solution_result(response);
+    let solution_result: IronShieldSolutionResult = create_ironshield_solution_result(response);
 
     // Convert Rust struct to JavaScript object
     serde_wasm_bindgen::to_value(&solution_result)
-        .map_err(|err| JsValue::from_str(&format!("Error serializing IronShield result: {:?}", err)))
+        .map_err(|err: serde_wasm_bindgen::Error| JsValue::from_str(&format!("Error serializing IronShield result: {:?}", err)))
 }
 
 /// Solves IronShield proof-of-work challenges using optimized multithreaded computation.
@@ -146,10 +146,10 @@ pub fn solve_ironshield_challenge_multi_threaded(
 
     // Parse the challenge JSON
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
-        .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
+        .map_err(|e: serde_json::Error| JsValue::from_str(&format!("Error parsing challenge JSON: {}", e)))?;
 
-    let start = start_offset.map(|n| n as usize);
-    let step = stride.map(|n| n as usize);
+    let start: Option<usize> = start_offset.map(|n: u32| n as usize);
+    let step: Option<usize> = stride.map(|n: u32| n as usize);
     
     if let (Some(start_val), Some(stride_val)) = (start, step) {
         console_log(&format!("🎯 [WASM] JavaScript worker coordination: start={}, stride={} (checks nonce's {}, {}, {}, ...)", start_val, stride_val, start_val, start_val + stride_val, start_val + 2*stride_val));
@@ -158,24 +158,25 @@ pub fn solve_ironshield_challenge_multi_threaded(
     }
 
     // Create a Rust closure that wraps the JavaScript callback function
-    let callback = progress_callback.clone();
+    let callback: js_sys::Function = progress_callback.clone();
     let closure = move |progress: u64| {
         // Call the JavaScript function, passing the progress value
         let _ = callback.call1(&JsValue::NULL, &JsValue::from(progress));
     };
 
     // Find valid nonce using JavaScript worker coordinated algorithm.
-    let response = ironshield_core::find_solution_multi_threaded(
+    let response: ironshield_core::IronShieldChallengeResponse = ironshield_core::find_solution_multi_threaded(
         &challenge,
+        Some(ironshield_core::PoWConfig::multi_threaded()),
         start, 
         step,
         Some(&closure)
-    ).map_err(|e| JsValue::from_str(&format!("Error solving IronShield challenge with worker coordination: {}", e)))?;
+    ).map_err(|e: String| JsValue::from_str(&format!("Error solving IronShield challenge with worker coordination: {}", e)))?;
 
     console_log("✅ [WASM] Worker coordination solution found");
 
     // Convert the response to a JavaScript object
-    let result = js_sys::Object::new();
+    let result: js_sys::Object = js_sys::Object::new();
     js_sys::Reflect::set(&result, &"solution_str".into(), &response.solution.to_string().into())?;
     js_sys::Reflect::set(&result, &"solution".into(), &JsValue::from(response.solution))?;
     js_sys::Reflect::set(&result, &"challenge_signature_hex".into(), &hex::encode(response.solved_challenge.challenge_signature).into())?;
@@ -195,12 +196,12 @@ pub fn solve_ironshield_challenge_multi_threaded(
 pub fn verify_ironshield_solution(challenge_json: &str, solution_nonce: i64) -> Result<bool, JsValue> {
     // Parse the challenge from JSON
     let challenge: ironshield_core::IronShieldChallenge = serde_json::from_str(challenge_json)
-        .map_err(|e| JsValue::from_str(&format!("Error parsing challenge JSON for verification: {}", e)))?;
+        .map_err(|e: serde_json::Error| JsValue::from_str(&format!("Error parsing challenge JSON for verification: {}", e)))?;
 
     // Create a challenge response for verification
-    let response = ironshield_core::IronShieldChallengeResponse::new(challenge, solution_nonce);
+    let response: ironshield_core::IronShieldChallengeResponse = ironshield_core::IronShieldChallengeResponse::new(challenge, solution_nonce);
 
     // Verify the solution using the new API
-    let is_valid = ironshield_core::verify_ironshield_solution(&response);
+    let is_valid: bool = ironshield_core::verify_ironshield_solution(&response);
     Ok(is_valid)
 }
