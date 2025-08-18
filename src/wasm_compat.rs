@@ -24,6 +24,7 @@ use web_sys::{console, window};
 /// * `thread_count`:           The number of logical processors 
 ///                             available.
 #[wasm_bindgen]
+#[repr(C)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WasmCompatibility {
     #[wasm_bindgen(skip)]

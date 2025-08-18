@@ -1,3 +1,8 @@
+//! IronShield WebAssembly bindings
+
+// Suppress warnings from wasm-bindgen internals during ABI transition
+#![allow(wasm_c_abi)]
+
 mod js_challenge;
 mod js_response;
 mod js_token;
@@ -60,7 +65,7 @@ pub async fn init_threads(num_threads: usize) -> Result<(), JsValue> {
 /// # Returns
 /// `bool`: `true` if compiled with a "parallel" feature, `false` otherwise.
 #[wasm_bindgen]
-pub fn are_threads_supported() -> bool {
+pub extern "C" fn are_threads_supported() -> bool {
     #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
     return true;
 
