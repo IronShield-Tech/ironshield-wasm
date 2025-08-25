@@ -40,13 +40,10 @@ parallel = ["wasm-bindgen-rayon", "wasm-bindgen-futures", "rayon", "ironshield-c
 no-parallel = ["ironshield-core/no-parallel"]  # Disables parallel when enabled
 mobile-safari = ["no-parallel"]  # Alias for mobile testing
 
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = false
-
 [profile.release]
-# Release profile optimized for minimum file size
+# Optimized for minimum file size
+# Avoid setting a strip value to be compatible with wasm-opt
 lto = "fat"
 panic = "abort"
-strip = "symbols"
 opt-level = "z"
 codegen-units = 1
