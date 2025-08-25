@@ -43,7 +43,7 @@ mobile-safari = ["no-parallel"]  # Alias for mobile testing
 [profile.release]
 # Optimized for minimum file size
 # Avoid setting a strip value to be compatible with wasm-opt
-lto = "fat"
+lto = true
 panic = "abort"
 opt-level = "z"
 codegen-units = 1
