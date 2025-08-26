@@ -30,7 +30,7 @@ impl JsIronShieldChallenge {
     #[wasm_bindgen(constructor)]
     pub fn from_json(json_str: &str) -> Result<Self, JsValue> {
         let challenge: IronShieldChallenge = serde_json::from_str(json_str)
-            .map_err(|e| JsValue::from_str(&format!("Failed to parse JSON: {}", e)))?;
+            .map_err(|e: serde_json::Error| JsValue::from_str(&format!("Failed to parse JSON: {}", e)))?;
 
         Ok(JsIronShieldChallenge { inner: challenge })
     }
@@ -43,7 +43,7 @@ impl JsIronShieldChallenge {
     #[wasm_bindgen]
     pub fn to_json(&self) -> Result<String, JsValue> {
         serde_json::to_string(&self.inner)
-            .map_err(|e| JsValue::from_str(&format!("Failed to serialize challenge to JSON: {}", e)))
+            .map_err(|e: serde_json::Error| JsValue::from_str(&format!("Failed to serialize challenge to JSON: {}", e)))
     }
 
     /// Converts the challenge to a JavaScript object.
@@ -54,7 +54,7 @@ impl JsIronShieldChallenge {
     #[wasm_bindgen]
     pub fn to_js_object(&self) -> Result<JsValue, JsValue> {
         serde_wasm_bindgen::to_value(&self.inner)
-            .map_err(|e| JsValue::from_str(&format!("Failed to convert challenge to JS object: {:?}", e)))
+            .map_err(|e: serde_wasm_bindgen::Error| JsValue::from_str(&format!("Failed to convert challenge to JS object: {:?}", e)))
     }
 
     /// Encodes the challenge as a Base64 URL-safe string
@@ -77,8 +77,8 @@ impl JsIronShieldChallenge {
     ///                                             error if decoding fails.
     #[wasm_bindgen]
     pub fn from_base64url_header(encoded_header_value: &str) -> Result<Self, JsValue> {
-        let challenge = IronShieldChallenge::from_base64url_header(encoded_header_value)
-            .map_err(|e| JsValue::from_str(&format!("Failed to decode Base64 URL-safe header: {}", e)))?;
+        let challenge: IronShieldChallenge = IronShieldChallenge::from_base64url_header(encoded_header_value)
+            .map_err(|e: String| JsValue::from_str(&format!("Failed to decode Base64 URL-safe header: {}", e)))?;
 
         Ok(Self { inner: challenge })
     }

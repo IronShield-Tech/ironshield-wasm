@@ -14,10 +14,10 @@ use hex;
 use serde_json;
 
 /// Support for threading in WASM
-#[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
+#[cfg(all(feature = "threading", not(feature = "no-threading")))]
 use wasm_bindgen_rayon::init_thread_pool;
 
-#[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
+#[cfg(all(feature = "threading", not(feature = "no-threading")))]
 use wasm_bindgen_futures::JsFuture;
 
 use ironshield_core;
@@ -51,25 +51,25 @@ fn create_ironshield_solution_result(response: ironshield_core::IronShieldChalle
 /// * `num_threads`: Number of worker threads to spawn
 ///
 /// # Note
-/// Only available when compiled with a "parallel" feature flag
+/// Only available when compiled with a "threading" feature flag
 #[wasm_bindgen]
-#[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
+#[cfg(all(feature = "threading", not(feature = "no-threading")))]
 pub async fn init_threads(num_threads: usize) -> Result<(), JsValue> {
     // Create a shared memory thread pool for parallel processing
     let promise: js_sys::Promise = init_thread_pool(num_threads);
     JsFuture::from(promise).await.map(|_| ()).map_err(|e: JsValue| e)
 }
 
-/// Checks if parallel processing is available in the current build.
+/// Checks if threading is available in the current build.
 ///
 /// # Returns
-/// `bool`: `true` if compiled with a "parallel" feature, `false` otherwise.
+/// `bool`: `true` if compiled with a "threading" feature, `false` otherwise.
 #[wasm_bindgen]
 pub extern "C" fn are_threads_supported() -> bool {
-    #[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
+    #[cfg(all(feature = "threading", not(feature = "no-threading")))]
     return true;
 
-    #[cfg(not(all(feature = "parallel", not(feature = "no-parallel"))))]
+    #[cfg(not(all(feature = "threading", not(feature = "no-threading"))))]
     return false;
 }
 
@@ -137,7 +137,7 @@ pub fn solve_ironshield_challenge(challenge_json: &str) -> Result<JsValue, JsVal
 /// - **Early termination**:       Stops all threads immediately when a solution is found.
 /// - **Memory efficient**:        Minimal overhead compared to a single-threaded version.
 #[wasm_bindgen]
-#[cfg(all(feature = "parallel", not(feature = "no-parallel")))]
+#[cfg(all(feature = "threading", not(feature = "no-threading")))]
 pub fn solve_ironshield_challenge_multi_threaded(
     challenge_json: &str,
     start_offset: Option<u32>,

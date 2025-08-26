@@ -1,5 +1,5 @@
 [package]
-name = "ironshield-wasm"
+name = "ironshield-legacy-wasm"
 version = "0.1.11"
 edition = "2021"
 authors = [ "IronShield Developers <software@ironshield.cloud>" ]
@@ -15,7 +15,7 @@ crate-type = ["cdylib"]
 path = "src/lib.rs"
 
 [dependencies]
-ironshield-core = { version = "0.3", features = ["parallel"] }
+ironshield-core = { version = "0.3" }
 ironshield-types = { version = "0.2", features = ["wasm-logging"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -33,13 +33,9 @@ wasm-bindgen-futures = { version = "0.4", optional = true }
 rayon = { version = "1.8", optional = true }
 
 [features]
-default = ["parallel"]
-# Core features
-parallel = ["wasm-bindgen-rayon", "wasm-bindgen-futures", "rayon", "ironshield-core/parallel"]
-# Testing features - use inverted logic
-no-parallel = ["ironshield-core/no-parallel"]  # Disables parallel when enabled
-mobile-safari = ["no-parallel"]  # Alias for mobile testing
-
+default = ["threading"]
+threading = ["wasm-bindgen-rayon", "wasm-bindgen-futures", "rayon"]
+no-threading = []
 [profile.release]
 # Optimized for minimum file size
 # Avoid setting a strip value to be compatible with wasm-opt
