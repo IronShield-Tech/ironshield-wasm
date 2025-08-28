@@ -312,8 +312,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "ironshield-legacy-wasm"
-version = "0.1.11"
+name = "ironshield-types"
+version = "0.2.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de92cb80451e8a50aea7062d734c279654bf70e7a5354ce17d529240a4ceba1b"
+dependencies = [
+ "base64",
+ "chrono",
+ "ed25519-dalek",
+ "hex",
+ "rand",
+ "serde",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "ironshield-wasm"
+version = "0.1.12"
 dependencies = [
  "chrono",
  "console_error_panic_hook",
@@ -330,24 +348,6 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-bindgen-rayon",
- "web-sys",
-]
-
-[[package]]
-name = "ironshield-types"
-version = "0.2.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de92cb80451e8a50aea7062d734c279654bf70e7a5354ce17d529240a4ceba1b"
-dependencies = [
- "base64",
- "chrono",
- "ed25519-dalek",
- "hex",
- "rand",
- "serde",
- "serde-wasm-bindgen",
- "serde_json",
- "wasm-bindgen",
  "web-sys",
 ]
 
